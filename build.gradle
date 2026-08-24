@@ -29,6 +29,10 @@ dependencies {
 	// Reads text out of an uploaded resume, so one upload does the whole job
 	// instead of asking for the same document as a file and again as text.
 	implementation 'org.apache.pdfbox:pdfbox:3.0.3'
+	// IMAP, to read LinkedIn job alerts out of your own inbox. LinkedIn has no
+	// job-search API; the mail it already sends you is the one route in that
+	// needs no scraping. See docs/DECISIONS.md #42.
+	implementation 'org.eclipse.angus:angus-mail:2.0.3'
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'

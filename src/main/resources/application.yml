@@ -59,6 +59,23 @@ jobhunt:
     min-score: ${JOBHUNT_AUTOAPPLY_MIN_SCORE:65}
     daily-limit: ${JOBHUNT_AUTOAPPLY_DAILY_LIMIT:10}
 
+  # LinkedIn job alerts, read from your own inbox over IMAP. LinkedIn has no
+  # job-search API and scraping it is out; the mail it already sends you is the
+  # one route in that breaks nothing. See docs/DECISIONS.md #42.
+  #
+  # The password must be an APP password, not your account password, and it
+  # belongs in .env -- never here, and never in the database.
+  mailbox:
+    host: ${JOBHUNT_MAIL_HOST:}
+    port: ${JOBHUNT_MAIL_PORT:993}
+    username: ${JOBHUNT_MAIL_USER:}
+    password: ${JOBHUNT_MAIL_PASSWORD:}
+    # A Gmail filter putting alerts under their own label makes this far
+    # faster than searching a whole inbox.
+    folder: ${JOBHUNT_MAIL_FOLDER:INBOX}
+    lookback-days: ${JOBHUNT_MAIL_LOOKBACK_DAYS:7}
+    max-messages: ${JOBHUNT_MAIL_MAX_MESSAGES:200}
+
   # The nightly board sweep. Set enabled to false to sweep only by hand from
   # the UI. See docs/DECISIONS.md #19.
   sweep:

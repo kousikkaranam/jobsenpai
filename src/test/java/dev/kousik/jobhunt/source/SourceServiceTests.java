@@ -152,6 +152,16 @@ class SourceServiceTests extends AbstractDatabaseTest {
 				.getConfig().get("app_id"), "re-adding should update the credentials");
 	}
 
+	@Test
+	@DisplayName("\"linkedin\" adds the mail source; nobody should have to know its stored name")
+	void linkedinAlias() {
+		var result = sources.addBulk("linkedin");
+
+		assertEquals(List.of("linkedin_email"), result.added());
+		assertTrue(sources.list().stream()
+				.anyMatch(source -> source.getType() == JobSourceType.LINKEDIN_EMAIL));
+	}
+
 	// ── the title filter ─────────────────────────────────────────────────
 
 	@Test

@@ -199,9 +199,23 @@ public class SourceService {
 		return token == null ? "" : token.toString();
 	}
 
+	/**
+	 * The type named at the start of a pasted line.
+	 *
+	 * Accepts spellings a person would type, which the canonical values do not
+	 * cover. The alias lives here rather than in {@code fromValue} on purpose:
+	 * that method also backs the JPA converter and the ingest DTO's validation,
+	 * and both should only ever see the exact value the database stores. A
+	 * loose alias there made "linkedin" a valid value on {@code POST
+	 * /api/jobs/ingest}, which is a different question with a different answer.
+	 */
 	private static JobSourceType typeOf(String candidate) {
+		String value = candidate.strip();
+		if ("linkedin".equalsIgnoreCase(value)) {
+			return JobSourceType.LINKEDIN_EMAIL;
+		}
 		try {
-			return JobSourceType.fromValue(candidate.strip());
+			return JobSourceType.fromValue(value);
 		}
 		catch (IllegalArgumentException ex) {
 			return null;

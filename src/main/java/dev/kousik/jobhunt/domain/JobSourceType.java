@@ -22,7 +22,17 @@ public enum JobSourceType {
 	ADZUNA("adzuna", Kind.SEARCH),
 	REMOTIVE("remotive", Kind.SEARCH),
 	REMOTEOK("remoteok", Kind.SEARCH),
-	HIMALAYAS("himalayas", Kind.SEARCH);
+	HIMALAYAS("himalayas", Kind.SEARCH),
+
+	/**
+	 * LinkedIn job alerts, read out of the candidate's own mailbox over IMAP.
+	 *
+	 * Not an exception to the rule that automated sources are public documented
+	 * APIs only — it does not touch linkedin.com at all. The alerts were already
+	 * being sent to the user; this reads the inbox they arrive in. See
+	 * {@code docs/DECISIONS.md} #42.
+	 */
+	LINKEDIN_EMAIL("linkedin_email", Kind.SEARCH);
 
 	/**
 	 * What a source needs in order to be swept.

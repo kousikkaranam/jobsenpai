@@ -26,8 +26,9 @@ pipeline. A human still performs every apply.
   application state machine, and the full REST API
 - Deterministic `MatchScorer`, scoring on ingest, with a re-score guard over
   posting + profile + preferences + scorer version
-- Seven connectors: Greenhouse, Lever and Ashby (per-company boards) plus
-  Adzuna, Remotive, RemoteOK and Himalayas (cross-company search)
+- Eight connectors: Greenhouse, Lever and Ashby (per-company boards), Adzuna,
+  Remotive, RemoteOK and Himalayas (cross-company search), plus LinkedIn job
+  alerts read from your own mailbox over IMAP (docs/DECISIONS.md #42)
 - `BoardDiscovery` builds the watchlist itself, probing ~313 shipped company
   names against all three ATS APIs and keeping what answers. Verified live:
   **122 boards found in 40s**, against the 16 the old hand-written list had.
@@ -45,7 +46,7 @@ pipeline. A human still performs every apply.
   first sweep runs
 - Auto-apply learns: every blocked question is logged and answerable once
 - Kanban pipeline board where only legal moves accept a drop
-- **230 tests green**, 0 skipped, against a real PG17 Testcontainer
+- **239 tests green**, 0 skipped, against a real PG17 Testcontainer
 
 Not built yet: the Claude Code skills. `job_match.ai_score` is therefore null on
 every row, which is what marks the Phase 4 queue — a heuristic score is not a
@@ -107,7 +108,9 @@ outreach drafting. See `docs/PLAN.md`.
 15. **Automated sources are public, documented APIs only.** LinkedIn, Naukri and
     Instahyre have none, and Instahyre answering an undocumented internal
     endpoint does not make it one. They stay paste sources. This has been asked
-    for and declined — see `docs/DECISIONS.md` #23.
+    for and declined — see `docs/DECISIONS.md` #23. The one exception is not an
+    exception: reading LinkedIn job-alert mail from the user's own inbox over
+    IMAP touches nothing of LinkedIn's. See #42.
 
 ## Conventions
 

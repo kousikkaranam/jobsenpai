@@ -1004,3 +1004,57 @@ Two ideas are genuinely worth taking and are not yet built:
   the posting, shown before sending. This belongs with Phase 4 tailoring.
 
 Neither is a reason to change anything now; both belong in `PLAN.md`.
+
+## 42. LinkedIn, by way of your own inbox
+
+**Decided:** `LinkedInMailConnector` reads LinkedIn job-alert emails from the
+candidate's mailbox over IMAP and feeds them through the normal ingest.
+
+This is not a reversal of #23 or #29, and the distinction is the whole point.
+Those declined automating **linkedin.com** — no job-search API exists, the terms
+forbid automated access, and the only way in is bot-detection evasion. All of
+that is still true and still declined.
+
+The alert emails are a different object entirely. LinkedIn composes them and
+sends them to the user. They arrive in the user's mailbox. An IMAP client
+reading its owner's mail is the ordinary use of the protocol and touches nothing
+belonging to LinkedIn. It needs no evasion, breaks no terms, and requires no
+credential the user does not already own.
+
+**The mailbox is opened READ_ONLY, and that is load-bearing.** Opening
+`READ_WRITE` and reading a message marks it seen — which would quietly drain the
+unread count on somebody's personal inbox every morning. Nothing is marked,
+moved, or deleted. Re-reading the same alerts costs nothing because ingest
+deduplicates.
+
+**Parsing is separated from fetching.** `LinkedInAlertParser` takes a string and
+returns postings, with no mailbox anywhere near it. LinkedIn's alert HTML is
+generated table soup that changes without notice, and the only way to know a
+change has broken it is to run the parser over a saved message — impossible if
+an IMAP connection is in the way. Eight tests hold the shape.
+
+The parser anchors on **the job URL, not the markup**. Class names and table
+structure will be reformatted; the link to the posting is the one thing the
+email exists to carry. Title comes from the anchor text, company and location
+from the two readable lines beneath it, and the tracking query is stripped —
+it is most of the URL's length, none of its meaning, and changes per send, which
+would otherwise make the same job look new every day.
+
+**Credentials go in `.env`, never the database.** A mailbox password is a
+different order of secret from a board token, and `job_source.config` is shown
+in the UI and included in backups. Gmail needs an app password, which is
+revocable on its own.
+
+**The source registers itself.** Setting IMAP details and *then* being told to
+add a source named `linkedin_email` is a second step that never gets done and
+looks like a bug when no alerts appear. `MailboxSourceRegistrar` adds it on
+startup once credentials exist, and only ever adds — a source deliberately
+removed stays removed.
+
+**Where the alias lives matters.** `"linkedin"` maps to `LINKEDIN_EMAIL` in
+`SourceService.typeOf` and *not* in `JobSourceType.fromValue`. Putting it in
+`fromValue` — which also backs the JPA converter and the ingest DTO's
+validation — made `{"source": "linkedin"}` a valid body on `POST
+/api/jobs/ingest`, and `ApiContractTests` caught it immediately: that endpoint
+had always rejected it, and should. A converter should only ever see the exact
+value the database stores.
