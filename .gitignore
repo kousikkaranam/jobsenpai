@@ -1,0 +1,53 @@
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Job Hunt OS ###
+# Database credentials. See .env.example.
+.env
+# Scratch handoff files between the engine and the Claude Code skills.
+.work/
+# pg_dump output.
+backups/
+# Tailored resumes are generated per application; the variants are versioned.
+resume/tailored/
+
+# Uploaded resumes carry a phone number and a salary history. The LaTeX
+# variants under resume/variants/ are versioned; the built PDFs are not.
+resume/*.pdf
+resume/*.doc
+resume/*.docx

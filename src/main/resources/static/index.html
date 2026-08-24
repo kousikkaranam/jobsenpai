@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Hunt</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!--
+  Five tabs, and the boundary between them is the question each answers:
+    Home        what needs me right now
+    Jobs        the queue
+    Dashboard   where every application stands
+    Me          who I am and what I want
+    Job Applier what the engine does while I am not here
+  The previous layout grew one feature at a time and the tabs ended up meaning
+  nothing, which is a real usability bug and not a matter of taste.
+-->
+
+<header class="topbar">
+  <div class="brand">
+    <span class="dot" id="health-dot" title="engine reachable"></span>
+    <strong>Job Hunt</strong>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab is-active" data-view="home">Home</button>
+    <button class="tab" data-view="jobs">Jobs</button>
+    <button class="tab" data-view="pipeline">Dashboard</button>
+    <button class="tab" data-view="me">Me</button>
+    <button class="tab" data-view="automation">Job Applier</button>
+  </nav>
+  <span class="ready-chip" id="ready-chip"></span>
+</header>
+
+<main>
+
+  <!-- ══ HOME ══════════════════════════════════════════════════════════ -->
+  <section class="view is-active" id="view-home">
+
+    <!-- Shown only until setup is done, then it disappears for good. -->
+    <div id="onboarding" hidden>
+      <div class="hero">
+        <h1 class="hero-title">Start applying</h1>
+        <p class="hero-sub">Upload your resume. Everything else is worked out from it.</p>
+
+        <div id="ob-step1">
+          <label class="dropzone" id="dropzone">
+            <input type="file" id="ob-file" accept=".pdf" hidden>
+            <strong>Choose your resume</strong>
+            <span class="hint">PDF. Read once, then attached to every application.</span>
+          </label>
+          <p class="hint centred">or <button type="button" class="linkish" id="ob-paste-toggle">paste it as text</button></p>
+          <div id="ob-paste" hidden>
+            <textarea id="ob-paste-text" rows="8" placeholder="Paste your resume…"></textarea>
+            <div class="actions centred"><button class="primary" id="ob-paste-go">Read it</button></div>
+          </div>
+          <div id="ob-problem"></div>
+        </div>
+
+        <form id="ob-step2" hidden>
+          <div class="read-banner" id="ob-read"></div>
+          <div class="row-2">
+            <label>Your name <input name="name" autocomplete="off"></label>
+            <label>Email <input name="email" type="email" autocomplete="off"></label>
+          </div>
+          <div class="row-3">
+            <label>Phone <input name="phone" placeholder="+91 90000 00000"></label>
+            <label>Notice period <span class="sub">days</span>
+              <input name="noticePeriodDays" type="number" min="0" placeholder="60"></label>
+            <label>Expected salary <span class="sub">annual rupees</span>
+              <input name="expectedCtc" type="number" min="0" placeholder="2800000"></label>
+          </div>
+          <div class="row-2">
+            <label>Roles to look for <span class="sub">read from your resume</span>
+              <textarea name="roles" rows="3"></textarea></label>
+            <label>Where you will work <span class="sub">one per line</span>
+              <textarea name="locations" rows="3">Pune
+Bengaluru
+Remote</textarea></label>
+          </div>
+          <details class="panel">
+            <summary><h2>Skills read from your resume</h2>
+              <span class="hint" id="ob-skill-count"></span></summary>
+            <div id="ob-skills" class="skill-rows"></div>
+          </details>
+          <div class="actions centred">
+            <button class="primary big" type="submit">Find my jobs</button>
+          </div>
+          <p class="hint centred">Takes about half a minute. Nothing is submitted to any employer.</p>
+        </form>
+
+        <div id="ob-done" hidden></div>
+      </div>
+    </div>
+
+    <div id="home-ready" hidden>
+      <div class="tiles" id="tiles"></div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>What needs you</h2>
+          <div class="actions">
+            <button class="sm" id="sweep-now">Fetch new jobs</button>
+            <button class="sm" id="apply-now">Run auto-apply</button>
+          </div>
+        </div>
+        <div id="next-actions"></div>
+        <div id="sweep-result"></div>
+        <div id="apply-result"></div>
+        <span class="hint" id="sweep-status"></span>
+        <span class="hint" id="apply-status"></span>
+      </div>
+
+      <div class="card">
+        <h2>Recent activity</h2>
+        <div id="activity"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ JOBS ══════════════════════════════════════════════════════════ -->
+  <section class="view" id="view-jobs">
+
+    <div class="strip">
+      <input id="search" class="search" placeholder="Search company…" autocomplete="off">
+      <select id="sort" class="sortby">
+        <option value="score">Best match first</option>
+        <option value="new">Newest first</option>
+      </select>
+      <button class="sm ghost" id="toggle-paste">+ Add one by hand</button>
+    </div>
+
+    <!-- Collapsed by default: sweeping is the main path now, pasting is rare. -->
+    <form class="paste" id="paste-form" hidden>
+      <textarea id="paste-text" rows="4" placeholder="Paste a job description…"></textarea>
+      <div class="derived" id="derived" hidden>
+        <div class="derived-fields">
+          <label>Company <input id="d-company" autocomplete="off"><em data-for="company"></em></label>
+          <label>Title <input id="d-title" autocomplete="off"><em data-for="title"></em></label>
+          <label>Location <input id="d-location" autocomplete="off"><em data-for="location"></em></label>
+          <label>Link <input id="d-url" placeholder="optional" autocomplete="off"></label>
+        </div>
+        <div class="derived-actions">
+          <button class="primary" type="submit" id="add-btn">Add job</button>
+          <span class="kbd-hint">or <kbd>Ctrl</kbd>+<kbd>Enter</kbd></span>
+          <button type="button" class="ghost" id="paste-clear">Clear</button>
+        </div>
+      </div>
+      <div id="paste-problem"></div>
+    </form>
+
+    <div class="pills" id="pills"></div>
+    <div id="jobs-list" class="list"></div>
+  </section>
+
+  <!-- ══ DASHBOARD ═════════════════════════════════════════════════════ -->
+  <section class="view" id="view-pipeline">
+    <div class="strip">
+      <span class="hint">Drag a card to move it. Only the moves your pipeline allows will accept a drop.</span>
+    </div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <!-- ══ ME ════════════════════════════════════════════════════════════ -->
+  <section class="view" id="view-me">
+
+    <div class="identity" id="identity">
+      <div class="identity-avatar" id="identity-initials">—</div>
+      <div class="identity-main">
+        <h2 id="identity-name">Nobody yet</h2>
+        <p id="identity-sub">Upload a resume and this fills itself in.</p>
+      </div>
+      <div class="identity-stats">
+        <div><b id="identity-years">—</b><span>years</span></div>
+        <div><b id="identity-skills">—</b><span>skills</span></div>
+        <div><b id="identity-matches">—</b><span>worth applying</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>What I am looking for</h2></div>
+      <p class="hint">
+        Target roles are the filter that keeps a nightly sweep down to a handful.
+        List several phrasings — "Backend Engineer" will not catch "Java Developer".
+      </p>
+      <form id="prefs-form">
+        <div class="row-2">
+          <label>Target roles <span class="sub">one per line</span>
+            <textarea name="targetRoles" rows="4"
+              placeholder="Backend Engineer&#10;Java Developer&#10;Software Development Engineer"></textarea></label>
+          <label>Preferred locations <span class="sub">one per line</span>
+            <textarea name="locations" rows="4" placeholder="Pune&#10;Bengaluru&#10;Remote"></textarea></label>
+        </div>
+        <div class="row-3">
+          <label>Work style
+            <select name="remotePref">
+              <option value="any">no preference</option>
+              <option value="remote">remote</option>
+              <option value="hybrid">hybrid</option>
+              <option value="onsite">onsite</option>
+            </select>
+          </label>
+          <label>Minimum salary <span class="sub">annual rupees</span>
+            <input name="minSalary" type="number" min="0" placeholder="2500000"></label>
+          <label>Currency <input name="salaryCurrency" maxlength="3" placeholder="INR"></label>
+        </div>
+        <div class="row-2">
+          <label>Must have <span class="sub">skip anything not mentioning these</span>
+            <textarea name="mustHave" rows="2"></textarea></label>
+          <label>Dealbreakers <span class="sub">skip anything mentioning these</span>
+            <textarea name="dealBreakers" rows="2" placeholder="security clearance&#10;intern"></textarea></label>
+        </div>
+        <label>Companies to skip <textarea name="excludeCompanies" rows="2"></textarea></label>
+        <div class="actions">
+          <button class="primary" type="submit">Save and re-score</button>
+          <span class="hint" id="prefs-saved"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>My skills</h2><span class="hint" id="profile-state"></span></div>
+      <p class="hint">Read out of your resume. Every score is computed from these.</p>
+      <div class="chips" id="skill-chips"></div>
+
+      <details class="fold" id="resume-fold">
+        <summary>Re-read my resume</summary>
+        <form id="resume-form">
+          <label>Paste your resume <span class="sub">plain text</span>
+            <textarea name="text" rows="6" placeholder="Paste the full text of your resume…"></textarea>
+          </label>
+          <div class="row-3">
+            <label>Years of experience <span class="sub">blank to read the dates</span>
+              <input name="yearsExperience" type="number" step="0.1" min="0" placeholder="2.3"></label>
+            <label>Name <input name="name" autocomplete="off"></label>
+            <label>Locations <span class="sub">comma separated</span>
+              <input name="locations" placeholder="Pune, Bengaluru, Remote" autocomplete="off"></label>
+          </div>
+          <div class="actions"><button class="primary" type="submit">Read my resume</button></div>
+        </form>
+      </details>
+      <div id="skill-draft" hidden>
+        <div class="block-label">Found <span class="hint" id="skill-count"></span></div>
+        <p class="hint">Remove anything you would not defend in an interview.</p>
+        <div id="skill-rows" class="skill-rows"></div>
+        <div class="actions">
+          <button class="primary" id="save-profile" type="button">Save and re-score</button>
+          <span class="hint" id="profile-saved"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>My application details</h2></div>
+      <p class="hint">
+        What forms ask for. Auto-apply fills these and <strong>refuses any form
+        asking for something you have not given</strong> — it will not invent a
+        notice period or a salary.
+      </p>
+      <form id="applicant-form">
+        <div class="row-3">
+          <label>First name <input name="firstName" autocomplete="off"></label>
+          <label>Last name <input name="lastName" autocomplete="off"></label>
+          <label>Email <input name="email" type="email" autocomplete="off"></label>
+        </div>
+        <div class="row-3">
+          <label>Phone <input name="phone" placeholder="+91 90000 00000" autocomplete="off"></label>
+          <label>Current location <input name="currentLocation" placeholder="Pune, India" autocomplete="off"></label>
+          <label>Needs visa sponsorship?
+            <select name="requiresVisaSponsorship">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </label>
+        </div>
+        <div class="row-3">
+          <label>Notice period <span class="sub">days, 0 = immediate</span>
+            <input name="noticePeriodDays" type="number" min="0" placeholder="60"></label>
+          <label>Current CTC <span class="sub">annual rupees, not lakhs</span>
+            <input name="currentCtc" type="number" min="0" placeholder="1800000"></label>
+          <label>Expected CTC <span class="sub">annual rupees, not lakhs</span>
+            <input name="expectedCtc" type="number" min="0" placeholder="2800000"></label>
+        </div>
+        <div class="row-3">
+          <label>LinkedIn <input name="linkedinUrl" autocomplete="off"></label>
+          <label>GitHub <input name="githubUrl" autocomplete="off"></label>
+          <label>Portfolio <input name="portfolioUrl" autocomplete="off"></label>
+        </div>
+        <div class="row-2">
+          <label>Current company <input name="currentCompany" autocomplete="off"></label>
+          <label>Current title <input name="currentTitle" autocomplete="off"></label>
+        </div>
+        <div class="actions">
+          <button class="primary" type="submit">Save details</button>
+          <span class="hint" id="applicant-saved"></span>
+        </div>
+      </form>
+
+      <div class="sheet-block">
+        <div class="block-label">Resume file</div>
+        <div id="resume-state" class="hint"></div>
+        <div class="note-row">
+          <input type="file" id="resume-file" accept=".pdf,.doc,.docx">
+          <button class="sm" id="resume-upload">Upload</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ AUTOMATION ════════════════════════════════════════════════════ -->
+  <section class="view" id="view-automation">
+
+    <div class="card">
+      <div class="card-head"><h2>Auto-apply</h2></div>
+      <div id="autoapply-state"></div>
+
+      <div class="dials">
+        <label>Apply to anything scoring
+          <input type="range" id="dial-score" min="40" max="95" step="5">
+          <b id="dial-score-val"></b>+
+        </label>
+        <label>At most
+          <input type="range" id="dial-limit" min="1" max="30" step="1">
+          <b id="dial-limit-val"></b> a day
+        </label>
+        <div class="dial-effect" id="dial-effect"></div>
+      </div>
+
+      <!--
+        The one switch that turns preparation into sending. It was previously
+        an environment variable and a restart, which is not a control — and the
+        engine already supported changing it at runtime, so the instruction on
+        screen was simply out of date.
+      -->
+      <label class="switch" id="live-switch">
+        <input type="checkbox" id="dial-live">
+        <span class="switch-track"><span class="switch-knob"></span></span>
+        <span class="switch-text">
+          <b id="live-title">Submit applications for real</b>
+          <span class="hint" id="live-sub"></span>
+        </span>
+      </label>
+
+      <div class="sheet-block" id="questions-block" hidden>
+        <div class="block-label">Questions blocking applications</div>
+        <p class="hint">
+          Each of these stopped an application. Answer one and every future form
+          asking it goes through — the engine will not answer them for you, but
+          it only needs your answer once.
+        </p>
+        <div id="questions-list"></div>
+      </div>
+
+      <details class="panel">
+        <summary><h2>How the guard decides</h2>
+          <span class="hint">Six checks, all of which fail closed.</span></summary>
+        <ol class="hint spaced">
+          <li>Only jobs above the score threshold, never a <em>skip</em> verdict.</li>
+          <li>A daily cap, and never the same job twice.</li>
+          <li>The whole form is read and planned <strong>before a key is pressed</strong>.</li>
+          <li>Only facts you have stated get typed — never a generated answer.</li>
+          <li>Any required field it cannot answer <strong>abandons the whole application</strong>.</li>
+          <li>Nothing is submitted at all unless live mode is switched on.</li>
+        </ol>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Where jobs come from</h2>
+        <button class="sm" id="discover-boards">Find more boards</button>
+      </div>
+      <p class="hint">
+        Swept every morning. Setup found these by probing a few hundred company
+        names against the Greenhouse, Lever and Ashby APIs and keeping the ones
+        that answered — so the list grows without anyone maintaining it.
+      </p>
+      <p class="hint" id="discover-status"></p>
+      <form id="sources-form">
+        <label>Watch specific companies
+          <textarea name="text" rows="3"
+            placeholder="Razorpay, Zerodha, Swiggy"></textarea>
+        </label>
+        <p class="hint">
+          Names, not tokens. Each one is probed against all three boards, so you
+          do not need to know which ATS a company runs.
+        </p>
+        <div class="actions"><button class="primary" type="submit">Find and add</button></div>
+      </form>
+      <div id="sources-list" class="list compact"></div>
+      <p class="hint">
+        LinkedIn, Naukri and Instahyre publish no job-search API.
+        <a href="/bookmarklet.html">Get the capture button</a> to send those in with one click.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Resume variants</h2></div>
+      <p class="hint">Pointers to .tex files, for per-application tailoring.</p>
+      <form class="quickadd" id="variant-form">
+        <input type="hidden" name="id"><input type="hidden" name="targetRole">
+        <div class="quickadd-row">
+          <input name="name" placeholder="backend" required autocomplete="off">
+          <input name="texPath" placeholder="resume/variants/backend.tex" required autocomplete="off">
+          <button class="primary" type="submit">Add</button>
+        </div>
+        <label class="inline"><input type="checkbox" name="isDefault"> Use as default</label>
+      </form>
+      <div id="variants-list" class="list compact"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>People</h2></div>
+      <p class="hint">
+        Referrals outrank applications in India by a wide margin. Add people you
+        find yourself; the engine never touches LinkedIn.
+      </p>
+      <form class="quickadd" id="contact-form">
+        <input type="hidden" name="id">
+        <div class="quickadd-row">
+          <input name="name" placeholder="Name" required autocomplete="off">
+          <input name="company" placeholder="Company" autocomplete="off">
+          <button class="primary" type="submit">Add</button>
+          <button type="button" class="ghost" id="contact-more">More…</button>
+        </div>
+        <div class="quickadd-extra" id="contact-extra" hidden>
+          <div class="row-3">
+            <label>Title <input name="title" autocomplete="off"></label>
+            <label>Email <input name="email" type="email" autocomplete="off"></label>
+            <label>LinkedIn <input name="linkedinUrl" autocomplete="off"></label>
+          </div>
+          <label>Draft message <textarea name="outreachMessage" rows="3"></textarea></label>
+          <label class="inline">Outreach
+            <select name="outreachStatus">
+              <option value="none">not started</option>
+              <option value="drafted">drafted</option>
+              <option value="sent">sent</option>
+              <option value="replied">replied</option>
+            </select>
+          </label>
+        </div>
+      </form>
+      <div id="contacts-list" class="list compact"></div>
+    </div>
+
+    <details class="panel">
+      <summary><h2>Engine</h2><span class="hint">Counts and paths.</span></summary>
+      <div id="engine-info" class="kv"></div>
+    </details>
+  </section>
+
+</main>
+
+<dialog id="detail"><div id="detail-body"></div></dialog>
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

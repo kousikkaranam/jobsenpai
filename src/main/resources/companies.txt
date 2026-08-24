@@ -1,0 +1,336 @@
+# Candidate company names for board discovery.
+#
+# Not a watchlist. Nothing here is trusted: every name is probed against the
+# Greenhouse, Lever and Ashby APIs and only the ones that answer with a real
+# board get added. Roughly one name in four survives, and which ones survive
+# changes as companies switch ATS, which is the whole point of probing rather
+# than curating.
+#
+# Bias is deliberate: Indian product companies and global companies that hire
+# engineers in India, because that is who the candidate can actually join.
+# Add a name here and it costs three HTTP requests to find out.
+
+# --- Indian consumer and fintech ---
+Razorpay
+Zerodha
+Groww
+CRED
+PhonePe
+Paytm
+Slice
+Jupiter
+Zeta
+Setu
+Signzy
+Perfios
+Digit Insurance
+Acko
+Policybazaar
+Navi
+Khatabook
+BharatPe
+Juspay
+Cashfree
+PineLabs
+Instamojo
+Chargebee
+Recur Club
+Fi Money
+INDmoney
+Smallcase
+Upstox
+Angel One
+Kredivo
+Lendingkart
+M2P Fintech
+Decentro
+Zolve
+
+# --- Indian commerce, travel, food, mobility ---
+Flipkart
+Meesho
+Myntra
+Nykaa
+Zepto
+Swiggy
+Zomato
+Dunzo
+BigBasket
+Licious
+Country Delight
+Rapido
+Ola
+Ather Energy
+Delhivery
+Shiprocket
+Shadowfax
+Porter
+Lenskart
+Purplle
+Mamaearth
+Wakefit
+Urban Company
+MakeMyTrip
+Ixigo
+Cleartrip
+OYO
+Yatra
+Tata 1mg
+PharmEasy
+Practo
+Cult Fit
+Bounce
+
+# --- Indian SaaS and developer tools ---
+Freshworks
+Zoho
+Postman
+BrowserStack
+Hasura
+Atlan
+Chargebee
+Whatfix
+Icertis
+Darwinbox
+Keka
+Zluri
+Rocketlane
+Nutanix
+Druva
+Netskope
+Sprinklr
+LeadSquared
+Exotel
+Kaleyra
+Gupshup
+MoEngage
+CleverTap
+WebEngage
+Netcore
+Amagi
+Innovaccer
+HighRadius
+Uniphore
+Observe AI
+Yellow AI
+Haptik
+Verloop
+Locus
+FarEye
+Fleetx
+Zetwerk
+Moglix
+Infra Market
+Turtlemint
+Clootrack
+Toplyne
+Devtron
+Facets
+Last9
+Middleware
+SigNoz
+Deepsource
+Typsense
+Appsmith
+ToolJet
+Refyne
+Springworks
+Plum
+Onsurity
+Nova Benefits
+
+# --- Indian AI, data and deeptech ---
+Sarvam AI
+Krutrim
+Fractal Analytics
+Mu Sigma
+Tredence
+LatentView
+Quantiphi
+Gramener
+AgroStar
+Cropin
+DeHaat
+Ninjacart
+Skyroot
+Agnikul
+Pixxel
+Digantara
+Log9
+Ultraviolette
+Qure AI
+Niramai
+SigTuple
+Wysa
+
+# --- Indian edtech and services ---
+Scaler
+Newton School
+Unacademy
+UpGrad
+Vedantu
+PhysicsWallah
+Emeritus
+Coding Ninjas
+GeeksforGeeks
+InterviewBit
+Turing
+Andela
+Toptal
+Uplers
+Crossover
+Deel
+Remote
+Multiplier
+Skuad
+Rippling
+
+# --- Global, hiring in India ---
+Atlassian
+Stripe
+Databricks
+Snowflake
+Confluent
+HashiCorp
+GitLab
+Cloudflare
+DigitalOcean
+Twilio
+Segment
+Datadog
+New Relic
+Grafana Labs
+Elastic
+MongoDB
+Redis
+Neo4j
+Couchbase
+CockroachLabs
+SingleStore
+Yugabyte
+Timescale
+Airbyte
+Fivetran
+dbt Labs
+Starburst
+Dremio
+Clickhouse
+Temporal
+Camunda
+Netflix
+Spotify
+Shopify
+Squarespace
+Wise
+Revolut
+Monzo
+Plaid
+Brex
+Ramp
+Mercury
+Affirm
+Robinhood
+Coinbase
+Gemini
+Circle
+Figma
+Notion
+Airtable
+Miro
+Canva
+Loom
+Linear
+Vercel
+Netlify
+Render
+Fly
+Supabase
+PlanetScale
+Retool
+Zapier
+Make
+Twitch
+Discord
+Reddit
+Pinterest
+Dropbox
+Box
+Asana
+Monday
+Smartsheet
+ServiceTitan
+Samsara
+Verkada
+Rubrik
+Cohesity
+Nutanix
+VMware
+Okta
+Auth0
+JumpCloud
+1Password
+Snyk
+Sonar
+JFrog
+CircleCI
+Harness
+LaunchDarkly
+Split
+Sentry
+Honeycomb
+Chronosphere
+Lightstep
+PagerDuty
+Instana
+Zscaler
+CrowdStrike
+SentinelOne
+Wiz
+Orca Security
+Lacework
+Sysdig
+Aqua Security
+Postman
+Kong
+Tyk
+Apollo
+Hasura
+Prisma
+Strapi
+Contentful
+Sanity
+Storyblok
+Algolia
+Meilisearch
+Typesense
+Pinecone
+Weaviate
+Qdrant
+Chroma
+LangChain
+Hugging Face
+Scale AI
+Labelbox
+Weights and Biases
+Comet
+Anyscale
+Modal
+Replicate
+Together AI
+Fireworks AI
+Baseten
+OpenAI
+Anthropic
+Cohere
+Mistral
+Perplexity
+Glean
+Sierra
+Harvey
+Abridge
+Cursor
+Codeium
+Sourcegraph
+Replit
+StackBlitz
+CodeSandbox

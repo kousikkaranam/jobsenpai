@@ -1,0 +1,20 @@
+{
+  "_comment": "Copy to .work/profile.json and edit. That path is gitignored; this example is not. The engine reads it via jobhunt.profile-path. Unknown fields here are ignored, so the portfolio export can carry more than this without breaking ingest.",
+
+  "name": "Your Name",
+  "headline": "Backend engineer, Java and Spring Boot",
+  "yearsExperience": 4.5,
+
+  "skills": [
+    { "name": "Java",        "proficiency": 5, "years": 4.5 },
+    { "name": "Spring Boot", "proficiency": 5, "years": 4.0 },
+    { "name": "PostgreSQL",  "proficiency": 4, "years": 3.5 },
+    { "name": "Kafka",       "proficiency": 3, "years": 1.5 },
+    { "name": "Docker",      "proficiency": 3, "years": 2.0 }
+  ],
+
+  "roleFamilies": ["backend", "platform"],
+  "locations": ["Pune", "Bengaluru", "Remote"],
+
+  "summary": "One paragraph. Read by the Phase 4 Claude Code scoring skill, not by the deterministic scorer."
+}

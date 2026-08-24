@@ -1,0 +1,27 @@
+{
+  "_comment": "Copy to .work/applicant.json and edit. Gitignored, unlike this file. These are the answers application FORMS ask for; profile.json holds the skills the SCORER reads. Two files because this one carries a phone number and a salary, and it is filled into forms unattended.",
+
+  "firstName": "Your",
+  "lastName": "Name",
+  "email": "you@example.com",
+  "phone": "+91 90000 00000",
+  "currentLocation": "Pune, India",
+
+  "linkedinUrl": "https://www.linkedin.com/in/yourhandle",
+  "githubUrl": "https://github.com/yourhandle",
+  "portfolioUrl": "https://yoursite.dev",
+
+  "currentCompany": "Current Employer",
+  "currentTitle": "Software Engineer",
+
+  "_india": "The three fields below are what Indian application forms screen on. Leave one null and auto-apply REFUSES any form that asks for it, rather than guessing a number into a binding field.",
+  "noticePeriodDays": 60,
+  "currentCtc": 1800000,
+  "expectedCtc": 2800000,
+
+  "_visa": "false = you can work without sponsorship where you are applying. The mapper flips this correctly for both phrasings a form might use.",
+  "requiresVisaSponsorship": false,
+
+  "_resume": "Must exist on disk or the guard blocks every application. Annual figures above are total rupees, not lakhs.",
+  "resumePath": "resume/Your-Name-Backend-Engineer.pdf"
+}

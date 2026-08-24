@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: job-hunt-engine
+
+  # Loads .env (key=value) if present. Keeps credentials out of git.
+  config:
+    import: optional:file:./.env[.properties]
+
+  datasource:
+    url: ${JOBHUNT_DB_URL:jdbc:postgresql://localhost:5432/jobhunt}
+    username: ${JOBHUNT_DB_USER:postgres}
+    password: ${JOBHUNT_DB_PASSWORD:}
+
+  jpa:
+    # Flyway owns the schema. Hibernate must never alter it — only check
+    # that entities agree with what the migrations produced.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: job_hunt
+
+  flyway:
+    enabled: true
+    schemas: job_hunt
+    default-schema: job_hunt
+    create-schemas: true
+    locations: classpath:db/migration
+
+server:
+  # Loopback only. This engine is never internet-reachable; if that ever
+  # changes, an auth filter becomes mandatory before opening the bind address.
+  address: 127.0.0.1
+  port: ${JOBHUNT_PORT:6969}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # scheduledtasks is exposed so "the sweep runs each morning" is something
+        # you can check rather than something you have to trust.
+        include: health,info,flyway,scheduledtasks
+  endpoint:
+    health:
+      show-details: always
+
+jobhunt:
+  profile-path: ${JOBHUNT_PROFILE_PATH:.work/profile.json}
+
+  applicant-path: ${JOBHUNT_APPLICANT_PATH:.work/applicant.json}
+
+  # Unattended applying. live=false fills every form, screenshots it, and
+  # submits nothing -- that is the safe first run, not a permanent state.
+  # See docs/DECISIONS.md #25.
+  autoapply:
+    enabled: ${JOBHUNT_AUTOAPPLY:true}
+    live: ${JOBHUNT_AUTOAPPLY_LIVE:false}
+    min-score: ${JOBHUNT_AUTOAPPLY_MIN_SCORE:65}
+    daily-limit: ${JOBHUNT_AUTOAPPLY_DAILY_LIMIT:10}
+
+  # The nightly board sweep. Set enabled to false to sweep only by hand from
+  # the UI. See docs/DECISIONS.md #19.
+  sweep:
+    enabled: ${JOBHUNT_SWEEP_ENABLED:true}
+    cron: ${JOBHUNT_SWEEP_CRON:0 0 7 * * *}
+    zone: ${JOBHUNT_SWEEP_ZONE:Asia/Kolkata}
+
+logging:
+  level:
+    dev.kousik.jobhunt: DEBUG

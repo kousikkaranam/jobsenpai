@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capture button — Job Hunt Engine</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="dot"></span><h1>Capture button</h1></div>
+  <nav class="tabs"><a class="tab" href="/">← Back to jobs</a></nav>
+</header>
+
+<main>
+  <div class="card">
+    <h2>Getting LinkedIn, Naukri and Instahyre in</h2>
+    <p class="hint">
+      None of the three publishes a job-search API, and automating their sites is
+      against their terms — so the engine does not. This is the honest way in:
+      you are reading a posting in your own browser, and this button hands it to
+      the engine in one click instead of a select-all-copy-paste.
+    </p>
+
+    <p><strong>Drag this to your bookmarks bar:</strong></p>
+
+    <p>
+      <a id="bm" class="bookmarklet" href="#">📥 Send to Job Hunt</a>
+    </p>
+
+    <p class="hint">
+      Then: open any job posting, click the bookmark. The engine opens with the
+      posting staged, company and title already read out of it. You check the
+      three boxes and press Add — same as any paste, minus the copying.
+    </p>
+
+    <details class="panel">
+      <summary><h2>What it does</h2><span class="hint">and what it does not</span></summary>
+      <ul class="hint">
+        <li>Reads the text of the page you are looking at, plus its URL and title.</li>
+        <li>Submits them to <code>127.0.0.1:6969</code> as an ordinary form post —
+            no background requests, no permissions, nothing installed.</li>
+        <li>Does <strong>not</strong> log in anywhere, follow links, read other
+            pages, or run unless you click it.</li>
+        <li>Nothing is saved until you press Add in the engine.</li>
+      </ul>
+    </details>
+
+    <details class="panel">
+      <summary><h2>If dragging does not work</h2></summary>
+      <p class="hint">
+        Create a bookmark by hand, name it anything, and paste this as the URL:
+      </p>
+      <pre id="src"></pre>
+    </details>
+  </div>
+</main>
+
+<script>
+/* Built as a string so the same source fills both the draggable link and the
+   copy-paste box, and so the engine's own origin is baked in rather than
+   guessed at by the bookmarklet. */
+const ENGINE = location.origin;
+
+const code = `(function(){
+  var t=document.body.innerText||'';
+  var f=document.createElement('form');
+  f.method='POST'; f.action='${ENGINE}/capture'; f.target='_blank';
+  function add(n,v){var i=document.createElement('input');i.type='hidden';i.name=n;i.value=v;f.appendChild(i);}
+  add('text', t.slice(0,150000));
+  add('url', location.href);
+  add('pageTitle', document.title);
+  document.body.appendChild(f); f.submit(); f.remove();
+})();`;
+
+const href = 'javascript:' + encodeURIComponent(code.replace(/\n\s*/g, ''));
+document.getElementById('bm').setAttribute('href', href);
+document.getElementById('src').textContent = href;
+</script>
+
+<style>
+.bookmarklet {
+  display: inline-block; padding: 0.5rem 1rem; border-radius: 8px;
+  background: var(--accent); color: #fff; font-weight: 600; text-decoration: none;
+  font-size: 0.9rem; cursor: grab;
+}
+main { max-width: 720px; }
+ul.hint { line-height: 1.9; }
+</style>
+
+</body>
+</html>
